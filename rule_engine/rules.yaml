@@ -1,0 +1,88 @@
+version: 1.0
+
+policies:
+  - id: locator_healing_policy
+    rules:
+      - id: ALLOW_LOCATOR_NOT_FOUND
+        priority: 10
+        when:
+          tool: playwright
+        match:
+          failure_type: LOCATOR_NOT_FOUND
+        action:
+          type: ALLOW
+        confidence:
+          score: 1.0
+        explain: >
+          Locator-not-found errors are safe to heal.
+  
+      - id: DENY_PAGE_LOAD_TIMEOUT
+        priority: 10
+        when:
+          tool: playwright
+        match:
+          failure_type: PAGE_LOAD_TIMEOUT
+        action:
+          type: DENY
+        confidence:
+          score: 1.0
+        explain: >
+          Page load timeouts indicate infrastructure or network issues and
+          must not be auto-healed.
+    
+      - id: DENY_NETWORK_FAILURE
+        priority: 10
+        when:
+          tool: playwright
+        match:
+          failure_type: NETWORK_FAILURE
+        action:
+          type: DENY
+        confidence:
+          score: 1.0
+        explain: >
+          Network failures are environmental and must not be auto-healed.
+      
+      - id: DENY_ASSERTION_FAILURE
+        priority: 100
+        when:
+          tool: playwright
+        match:
+          failure_type: ASSERTION_FAILURE
+        action:
+          type: DENY
+        confidence:
+          score: 1.0
+          level: VERY_HIGH
+        explain: >
+          Assertion failures indicate a mismatch between expected and actual behavior.
+          Auto-healing is not allowed to prevent masking real defects.
+      
+      - id: HANDLE_STRICT_MODE_VIOLATION
+        priority: 80
+        when:
+          tool: playwright
+        match:
+          failure_type: STRICT_MODE_VIOLATION
+        action:
+          type: TRANSFORM
+          transform:
+            strategy: NARROW_LOCATOR
+            preferred_order:
+              - scope_by_role
+              - add_accessible_name
+              - parent_landmark
+            fallback:
+              type: ESCALATE
+              requires:
+                - accessibility_snapshot
+        confidence:
+          score: 0.85
+          level: HIGH
+        explain: >
+          Strict mode violations indicate multiple matching elements.
+          The locator will be narrowed using semantic scoping rules.
+          AI escalation is used only if deterministic narrowing fails.
+
+
+
