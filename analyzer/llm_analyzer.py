@@ -77,7 +77,6 @@ def analyze_with_llm(snapshot_path: str, selector: str):
       eg: page.locator('//button[@type='submit']'). The value field in the return response 
       should be expression inside page.locator.
     - For xpath and css locators uses page.locator('...').
-    - Prioritizes role based locators over others.
     - ONLY following locators are supported. You should return only one of these:
         page.get_by_alt_text
         page.get_by_label
@@ -87,6 +86,7 @@ def analyze_with_llm(snapshot_path: str, selector: str):
         page.get_by_text
         page.get_by_title
         page.locator
+    - For get_by_role locator there must be a name field as well.
 
     Return:
     [

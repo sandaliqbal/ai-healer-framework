@@ -5,6 +5,12 @@ from adapter.selfheal.page_proxy import HealingPage
 from adapter.selfheal.self_healer import SimpleSelfHealer
 import logging
 from logging_config import setup_logging
+from test_context import current_test
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item):
+    current_test.set(item.nodeid)
 
 
 def pytest_configure():

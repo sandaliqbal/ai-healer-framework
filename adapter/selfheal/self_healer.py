@@ -5,6 +5,7 @@ from adapter.selfheal.reporter import normalize_failure
 from playwright.sync_api import Locator
 from adapter.selfheal.retry import build_locator
 import logging
+from test_context import current_test
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class SimpleSelfHealer(ILocatorHealer):
             tool="playwright",
             page=page,
             exception=exception,
-            test_name="login",
+            test_name=current_test.get(),
             test_type="REGRESSION",
         )
 
